@@ -5,9 +5,14 @@ on:
     branches: [ main ]  # Executa toda vez que você der push na branch main
   workflow_dispatch:     # Permite que você execute o processo manualmente
 
+# Garante que o GitHub Actions tenha permissão para ler o repositório e criar o download
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout code
@@ -17,6 +22,12 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+
+    # Instala dependências de sistema necessárias que a action às vezes omite
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libltdl-dev default-jdk
 
     - name: Build with Buildozer
       uses: ArtemSsh/buildozer-action@v1
@@ -30,4 +41,3 @@ jobs:
       with:
         name: package
         path: ${{ steps.buildozer.outputs.filename }}
-        
